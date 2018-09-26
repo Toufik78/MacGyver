@@ -17,11 +17,11 @@ pygame.init()
 
 window = pygame.display.set_mode((windows_size, windows_size))
 background = pygame.image.load(image_background).convert()
-window.blit(background, (0,0))
+window.blit(background, (0, 0))
 
 #Loading  of the character
 
-#perso = pygame.image.load(MacGyver).convert_alpha()
+
 
 #position_perso = perso.get_rect()
 
@@ -46,12 +46,17 @@ while prog:
     background = pygame.image.load(image_background).convert()
 
     # Initialization of the character
-    mcGyver = Character(mcGyver_right, mcGyver_left,mcGyver_up, mcGyver_down, lvl)
+    mcGyver = Character(mcGyver_right, mcGyver_left, mcGyver_up, mcGyver_down, lvl, window)
 
+    # Initialization of objects
+    ether = Object(lvl, pic_ether)
+    needle = Object(lvl, pic_needle)
+    tube = Object(lvl, pic_tube)
 
     # Rafraichissement
     pygame.display.flip()
 
+    obj_list = [ether, needle, tube]
 
     # Game loop
     while game:
@@ -67,15 +72,37 @@ while prog:
                 prog = 0
                 game = 0
 
-                if event.type == KEYDOWN:
-                    if event.key == K_RIGHT:
-                        mcGyver.move('right')
-                    elif event.key == K_LEFT:
-                        mcGyver.move('left')
-                    elif event.key == K_UP:
-                        mcGyver.move('up')
-                    elif event.key == K_DOWN:
-                        mcGyver.move('down')
+            if event.type == KEYDOWN:
+
+                if event.key == K_RIGHT:
+                    mcGyver.move('right')
+                elif event.key == K_LEFT:
+                    mcGyver.move('left')
+                elif event.key == K_UP:
+                    mcGyver.move('up')
+                elif event.key == K_DOWN:
+                    mcGyver.move('down')
+
+        # Display the lvl and objects
+        window.blit(background, (0, 0))
+        lvl.display(window)
+
+        for obj in obj_list:
+                window.blit(obj.design, (obj.obj_sprite_x, obj.obj_sprite_y))
+                # Test if an object have been taken
+                # if obj.taken is False:
+                mcGyver.take_obj(obj)
+
+        # Update the character direction
+        window.blit(mcGyver.direction, (mcGyver.sprite_x,mcGyver.sprite_y))
+
+        # Update the window
+        pygame.display.flip()
+
+        # Test if the game is finish
+        if (lvl.structure[mcGyver.y][mcGyver.x] == 'a'):
+            game = 0
+
 
     # Rafraichissement
 

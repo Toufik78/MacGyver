@@ -65,13 +65,17 @@ class Map:
 # Class that generate the character
 class Character:
 
-    def __init__(self, right, left, up, down,lvl):
+    def __init__(self, right, left, up, down,lvl, window):
 
         # Character's sprite
         self.right = pygame.image.load(right).convert_alpha()
         self.left = pygame.image.load(left).convert_alpha()
         self.up = pygame.image.load(up).convert_alpha()
         self.down = pygame.image.load(down).convert_alpha()
+        self.window = window
+
+        # Initialization of the direction
+        self.direction = self.right
 
         # Initialization of the position on the grid
         self.x = 0
@@ -81,46 +85,96 @@ class Character:
         self.sprite_x = 0
         self.sprite_y = 0
 
-
-        # Initialization of the direction
-        self.direction = self.right
-
-        # Character's deplacement
-        def move(self, direction):
-
-            if direction == 'right':
-                # Test if the character will not go out of the screen
-                if self.x < (nb_sprite - 1):
-                    # Test if the destination is not a wall
-                    if self.lvl.structure[self.y][self.x + 1] != 'm':
-                        # Incrementing self.x by 1
-                        self.x += 1
-                        # Update the position on the interface
-                        self.sprite_x = self.x * size_sprite
-                # Update the direction on the interface
-                self.direction = self.right
-
-            if direction == 'left':
-                if self.x > 0:
-                    if self.lvl.structure[self.y][self.x - 1] != 'm':
-                        self.x -= 1
-                        self.sprite_x = self.x * size_sprite
-                self.direction = self.left
-
-            if direction == 'up':
-                if self.y > 0:
-                    if self.lvl.structure[self.y - 1][self.x] != 'm':
-                        self.y -= 1
-                        self.sprite_y = self.y * size_sprite
-                self.direction = self.up
-
-            if direction == 'down':
-                if self.y < (nb_sprite - 1):
-                    if self.lvl.structure[self.y + 1][self.x] != 'm':
-                        self.y += 1
-                        self.sprite_y = self.y * size_sprite
-                self.direction = self.down
+        # LVL where the character is
+        self.lvl = lvl
 
 
 
+        # Number of object taken
+        self.nb_object = 0
 
+    # Character's deplacement
+    def move(self, direction):
+        sprite_old = (self.sprite_x, self.sprite_y)
+
+
+        print (direction)
+        if direction == 'right':
+            # Test if the character will not go out of the screen
+            if self.x < (nb_sprite - 1):
+                # Test if the destination is not a wall
+                if self.lvl.structure[self.y][self.x + 1] != 'm':
+                    # Incrementing self.x by 1
+                    self.x += 1
+                    # Update the position on the interface
+                    self.sprite_x = self.x * size_sprite
+            # Update the direction on the interface
+            self.direction = self.right
+
+        if direction == 'left':
+            if self.x > 0:
+                if self.lvl.structure[self.y][self.x - 1] != 'm':
+                    self.x -= 1
+                    self.sprite_x = self.x * size_sprite
+            self.direction = self.left
+
+        if direction == 'up':
+            if self.y > 0:
+                if self.lvl.structure[self.y - 1][self.x] != 'm':
+                    self.y -= 1
+                    self.sprite_y = self.y * size_sprite
+            self.direction = self.up
+
+        if direction == 'down':
+            if self.y < (nb_sprite - 1):
+                if self.lvl.structure[self.y + 1][self.x] != 'm':
+                    self.y += 1
+                    self.sprite_y = self.y * size_sprite
+            self.direction = self.down
+
+        perso = pygame.image.load(MacGyver).convert_alpha()
+        image_back = pygame.image.load(image_wall1).convert_alpha()
+
+        print(self.x, self.y)
+
+        self.window.blit(image_back, sprite_old)
+        self.window.blit(perso, (self.sprite_x, self.sprite_y) )
+
+    # Get the object
+    def take_obj(self, obj):
+
+        if (self.x == obj.obj_x) and (self.y == obj.obj_y) and (obj.taken is False):
+            self.nb_object += 1
+            obj.taken = True
+            obj.design = pygame.image.load(object_taken).convert_alpha()
+
+# Class that generate objects
+class Object:
+    
+    # Create an object and place him in random position
+    def __init__(self, lvl, design):
+
+        # Object's position on the grid
+        self.obj_x = 0
+        self.obj_y = 0
+
+        # Object's position on the design
+        self.obj_sprite_x = 0
+        self.obj_sprite_y = 0
+
+        # Booléan if the object has been picked up
+        self.taken = False
+        self.lvl = lvl
+        self.design = pygame.image.load(design).convert_alpha()
+
+        # Place the object on a sprite 0
+        while self.lvl.structure[self.obj_y][self.obj_x] != '0':
+
+            # Update the position on the grid
+            self.obj_x = random.randint(0, nb_sprite - 1)
+            self.obj_y = random.randint(0, nb_sprite - 1)
+            # Update the position on the design
+            self.obj_sprite_x = self.obj_x * size_sprite
+            self.obj_sprite_y = self.obj_y * size_sprite
+
+        self.lvl.structure[self.obj_x][self.obj_y] = 'm'
